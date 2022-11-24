@@ -1,0 +1,26 @@
+{
+  "name": "ee-promisify",
+  "version": "0.1.0",
+  "description": "Promisify your EventEmitter!",
+  "author": "YiJie <yijie4188@gmail.com>",
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "scripts": {},
+  "keywords": [
+    "promise",
+    "promisify",
+    "util",
+    "event",
+    "EventEmitter"
+  ],
+  "devDependencies": {
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.0",
+    "chai": "^4.3.7",
+    "mocha": "^10.1.0"
+  }
+}
