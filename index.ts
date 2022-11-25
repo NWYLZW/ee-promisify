@@ -65,6 +65,6 @@ export type EventEmitterPromisify<
   emit: Emitter<N>
 }
 
-export default function promisify<N extends EventsType>(ee: EventEmitter<N>, n: N): EventEmitterPromisify<N> {
+export default function promisify<N extends EventsType>(ee: EventEmitter<N>, n?: N): EventEmitterPromisify<N> {
   return {} as any
 }
