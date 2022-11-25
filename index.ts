@@ -2,6 +2,12 @@ type Awaitable<T> = T | PromiseLike<T>
 
 type Str<T> = T extends infer R extends string ? R : never
 
+type Cast<A, B> = A extends B ? A : B
+
+type Primitive = string | number | boolean | bigint | symbol | undefined | null
+
+type Narrow<T> = Cast<T, [] | (T extends Primitive ? T : never) | ({ [K in keyof T]: Narrow<T[K]> })>
+
 export interface EventsMap {
   [key: string]: {
     [key: string]: (...args: any[]) => any
