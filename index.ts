@@ -49,6 +49,29 @@ export interface SupportEE<Type extends EventsType> {
 
 export type EventEmitter<T extends EventsType> = SupportEE<T>[keyof SupportEE<T>]
 
+export type InferEvents1<T extends EventsType, EE extends SupportEE<T>[1]> = {
+  [K in keyof EE as K extends `on${infer EventName}` ? EventName : never]: EE
+}
+
+export type InferEvents<
+  T extends EventsType,
+  EE extends EventEmitter<T>
+> = EE extends SupportEE<T>[0]
+  ? 0
+  : EE extends SupportEE<T>[1]
+  ? InferEvents1<T, EE>
+  : EE extends SupportEE<T>[2]
+  ? 2
+  : never
+
+type T0 = InferEvents<string, {
+  onfoo: undefined
+  onfue: (a0: string) => void
+  onfuu: undefined
+  onfuo: undefined
+  xxxxx: (a0: number) => void
+}>
+
 export function isWhatEE<
   T extends EventsType,
   E extends keyof SupportEE<T>
