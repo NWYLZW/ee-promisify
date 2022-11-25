@@ -57,13 +57,14 @@ export function isWhatEE<
 }
 
 export type EventEmitterPromisify<
-  N extends EventsType
+  N extends EventsType,
+  EE extends EventEmitter<N>
 > = {
   on: Listener<N> & {
     [K in EventsName<N>]: Parameters<EventsFunc<N, K>> extends infer P
       ? Promise<P> & {
-        [Symbol.iterator]: () => Iterator<P>
-      }
+      [Symbol.iterator]: () => Iterator<P>
+    }
       : never
   }
   off: Listener<N>
@@ -71,6 +72,9 @@ export type EventEmitterPromisify<
   emit: Emitter<N>
 }
 
-export default function promisify<N extends EventsType>(ee: EventEmitter<N>, n?: N): EventEmitterPromisify<N> {
+export default function promisify<
+  N extends EventsType,
+  EE extends EventEmitter<N>
+>(ee: Narrow<EE>, n?: N): EventEmitterPromisify<N, EE> {
   return {} as any
 }
