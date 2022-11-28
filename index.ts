@@ -33,24 +33,24 @@ export type Emitter<T extends EventsType> = <
   F extends EventsFunc<T, E>
 >(event: E, ...args: Parameters<F>) => Awaitable<void> | Awaitable<ReturnType<F>>
 
-export interface SupportEE<Type extends EventsType> {
+export interface SupportEE<T extends EventsType> {
   0: {
-    on: Listener<Type>
-    off?: Listener<Type>
-    emit?: Emitter<Type>
+    on: Listener<T>
+    off?: Listener<T>
+    emit?: Emitter<T>
   }
   1: {
-    [K in EventsName<Type> as `on${Capitalize<EventsName<Type>>}`]?: EventsFunc<Type, K>
+    [K in EventsName<T> as `on${Capitalize<EventsName<T>>}`]?: EventsFunc<T, K>
   }
   2: {
-    [K in EventsName<Type> as `on${EventsName<Type>}`]?: EventsFunc<Type, K>
+    [K in EventsName<T> as `on${EventsName<T>}`]?: EventsFunc<T, K>
   }
 }
 
 export type EventEmitter<T extends EventsType> = SupportEE<T>[keyof SupportEE<T>]
 
-export type InferEvents1<T extends EventsType, EE extends SupportEE<T>[1]> = {
-  [K in keyof EE as K extends `on${infer EventName}` ? EventName : never]: EE
+export type InferEvents1And2<T extends EventsType, EE extends SupportEE<T>[1 | 2]> = {
+  [K in keyof EE as K extends `on${infer EventName}` ? Uncapitalize<EventName> : never]: EE[K]
 }
 
 export type InferEvents<
@@ -58,13 +58,21 @@ export type InferEvents<
   EE extends EventEmitter<T>
 > = EE extends SupportEE<T>[0]
   ? 0
-  : EE extends SupportEE<T>[1]
-  ? InferEvents1<T, EE>
-  : EE extends SupportEE<T>[2]
-  ? 2
+  : EE extends SupportEE<T>[1 | 2]
+  ? InferEvents1And2<T, EE>
   : never
 
 type T0 = InferEvents<string, {
+//   ^?
+  onFoo: undefined
+  onFue: (a0: string) => void
+  onFuu: undefined
+  onFuo: undefined
+  xxxxx: (a0: number) => void
+}>
+
+type T1 = InferEvents<string, {
+//   ^?
   onfoo: undefined
   onfue: (a0: string) => void
   onfuu: undefined
