@@ -5,10 +5,12 @@ import {
   Narrow,
 } from './type'
 
+export interface Events {
+  [key: string]: (...args: any[]) => any
+}
+
 export interface EventsMap {
-  [key: string]: {
-    [key: string]: (...args: any[]) => any
-  }
+  [key: string]: Events & never
 }
 
 export type EventsType = Str<keyof EventsMap>
@@ -88,7 +90,7 @@ type T0 = InferEvents<string, {
 }>
 
 //   _?
-type T1 = InferEvents<string, {
+type T1 = InferEvents<'foo', {
   onFoo: undefined
   onFue: (a0: string) => void
   onFuu: undefined
@@ -120,19 +122,18 @@ type EEPromisify<N extends EventsType, EE extends EventEmitter<N>> = {
   //     }
   //     : never
   // }
-  on: L
 }
 
 export type EventEmitterPromisify<
   T extends EventsType,
   EE extends EventEmitter<T>
-> = T extends keyof EventsMap
-  ? `4: ${T}`
-  : T
+> = [EventsMap[T]] extends [Events & never]
+  ? 1
+  : 2
 
-type X0 = EventEmitter<'foo'>
+type X0 = EventsMap['foo']
 //   ^?
-type X1 = EventEmitter<string>
+type X1 = EventsMap[string]
 //   ^?
 
 // &./index.spec.ts:16:12?
