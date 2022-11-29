@@ -1,12 +1,9 @@
-type Awaitable<T> = T | PromiseLike<T>
-
-type Str<T> = T extends infer R extends string ? R : never
-
-type Cast<A, B> = A extends B ? A : B
-
-type Primitive = string | number | boolean | bigint | symbol | undefined | null
-
-type Narrow<T> = Cast<T, [] | (T extends Primitive ? T : never) | ({ [K in keyof T]: Narrow<T[K]> })>
+import {
+  U2I,
+  Awaitable,
+  Str,
+  Narrow,
+} from './type'
 
 export interface EventsMap {
   [key: string]: {
@@ -20,18 +17,29 @@ export type EventsName<T extends EventsType> = Str<keyof EventsMap[T]>
 
 export type EventsFunc<T extends EventsType, E extends EventsName<T>> = EventsMap[T][E]
 
-export type Listener<T extends EventsType> = <
-  E extends EventsName<T>,
-  F extends EventsFunc<T, E>
->(
-  event: E,
-  callback: F
-) => Awaitable<void> | Awaitable<ReturnType<F>>
+export type DefineListener<
+  _E extends string,
+  _F extends (...args: any[]) => any
+> = <
+  E extends _E,
+  F extends _F
+>(event: E, callback: F) => Awaitable<void> | Awaitable<ReturnType<F>>
 
-export type Emitter<T extends EventsType> = <
-  E extends EventsName<T>,
-  F extends EventsFunc<T, E>
+type Listener<T extends EventsType> = EventsName<T> extends infer E extends EventsName<T>
+  ? EventsFunc<T, E> extends infer F extends (...args: any[]) => any
+  ? DefineListener<EventsName<T>, F>
+  : never
+  : never
+
+export type DefineEmitter<
+  _E extends string,
+  _F extends (...args: any[]) => any
+> = <
+  E extends _E,
+  F extends _F
 >(event: E, ...args: Parameters<F>) => Awaitable<void> | Awaitable<ReturnType<F>>
+
+export type Emitter<T extends EventsType> = DefineEmitter<EventsName<T>, EventsFunc<T, EventsName<T>>>
 
 export interface SupportEE<T extends EventsType> {
   0: {
@@ -49,6 +57,16 @@ export interface SupportEE<T extends EventsType> {
 
 export type EventEmitter<T extends EventsType> = SupportEE<T>[keyof SupportEE<T>]
 
+export type AllEventsByEE0<EE extends SupportEE<any>[0]> = EE['on'] extends infer F
+? F extends (event: infer E extends string | symbol | number, ...args: any[]) => any
+  ? { [K in E]: Parameters<F>[1] }
+  : never
+: never;
+
+export type InferEvents0<T extends EventsType, EE extends SupportEE<T>[0]> = U2I<
+  AllEventsByEE0<EE>
+>
+
 export type InferEvents1And2<T extends EventsType, EE extends SupportEE<T>[1 | 2]> = {
   [K in keyof EE as K extends `on${infer EventName}` ? Uncapitalize<EventName> : never]: EE[K]
 }
@@ -57,13 +75,20 @@ export type InferEvents<
   T extends EventsType,
   EE extends EventEmitter<T>
 > = EE extends SupportEE<T>[0]
-  ? 0
+  ? InferEvents0<T, EE>
   : EE extends SupportEE<T>[1 | 2]
   ? InferEvents1And2<T, EE>
   : never
 
+//   _?
 type T0 = InferEvents<string, {
-//   ^?
+  on:
+    | DefineListener<'foo', (a: string) => void>
+    | DefineListener<'fuo', (a: number) => void>
+}>
+
+//   _?
+type T1 = InferEvents<string, {
   onFoo: undefined
   onFue: (a0: string) => void
   onFuu: undefined
@@ -71,8 +96,8 @@ type T0 = InferEvents<string, {
   xxxxx: (a0: number) => void
 }>
 
-type T1 = InferEvents<string, {
-//   ^?
+//   _?
+type T2 = InferEvents<string, {
   onfoo: undefined
   onfue: (a0: string) => void
   onfuu: undefined
@@ -87,21 +112,31 @@ export function isWhatEE<
   return true
 }
 
-export type EventEmitterPromisify<
-  N extends EventsType,
-  EE extends EventEmitter<N>
-> = {
-  on: Listener<N> & {
-    [K in EventsName<N>]: Parameters<EventsFunc<N, K>> extends infer P
-      ? Promise<P> & {
-      [Symbol.iterator]: () => Iterator<P>
-    }
-      : never
-  }
-  off: Listener<N>
-  once: Listener<N>
-  emit: Emitter<N>
+type EEPromisify<N extends EventsType, EE extends EventEmitter<N>> = {
+  // on: L & {
+  //   [K in L extends Listener<infer Events> ? Events : never]: Parameters<Listener<K>>[1] extends (...args: infer Args) => any
+  //     ? Promise<Args> & {
+  //       [Symbol.iterator]: () => Iterator<Args>
+  //     }
+  //     : never
+  // }
+  on: L
 }
+
+export type EventEmitterPromisify<
+  T extends EventsType,
+  EE extends EventEmitter<T>
+> = T extends keyof EventsMap
+  ? `4: ${T}`
+  : T
+
+type X0 = EventEmitter<'foo'>
+//   ^?
+type X1 = EventEmitter<string>
+//   ^?
+
+// &./index.spec.ts:16:12?
+// &./index.spec.ts:30:12?
 
 export default function promisify<
   N extends EventsType,

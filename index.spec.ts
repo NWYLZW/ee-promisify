@@ -20,7 +20,10 @@ describe('Event Emiiter Promisify', function () {
     }, 'foo')
     ee.on('bar', () => {})
     const [ a0 ] = await ee.on.ber
+    //      ^?
     for await (const [a0, a1] of ee.on.bor) {
+      //              ^?
+      //                  ^2?
     }
   })
   it('should infer event emitter', async () => {
@@ -44,7 +47,9 @@ describe('Event Emiiter Promisify', function () {
     })
     ee.on('foo', () => {})
     const [ a01 ] = await ee.on.fuo
+    //      ^?
     const [ a02 ] = await ee.on.fue
+    //      ^?
     for await (const [a0, a1] of ee.on.fuu) {
     }
   })
