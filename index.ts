@@ -10,7 +10,7 @@ export interface Events {
 }
 
 export interface EventsMap {
-  [key: string]: Events & never
+  [key: string]: Events
 }
 
 export type EventsType = Str<keyof EventsMap>
@@ -27,12 +27,6 @@ export type DefineListener<
   F extends _F
 >(event: E, callback: F) => Awaitable<void> | Awaitable<ReturnType<F>>
 
-type Listener<T extends EventsType> = EventsName<T> extends infer E extends EventsName<T>
-  ? EventsFunc<T, E> extends infer F extends (...args: any[]) => any
-  ? DefineListener<EventsName<T>, F>
-  : never
-  : never
-
 export type DefineEmitter<
   _E extends string,
   _F extends (...args: any[]) => any
@@ -40,6 +34,8 @@ export type DefineEmitter<
   E extends _E,
   F extends _F
 >(event: E, ...args: Parameters<F>) => Awaitable<void> | Awaitable<ReturnType<F>>
+
+export type Listener<T extends EventsType> = DefineListener<EventsName<T>, EventsFunc<T, EventsName<T>>>
 
 export type Emitter<T extends EventsType> = DefineEmitter<EventsName<T>, EventsFunc<T, EventsName<T>>>
 
