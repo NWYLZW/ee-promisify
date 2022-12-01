@@ -20,7 +20,7 @@ export type EventsName<T extends EventsType> = Str<keyof EventsMap[T]>
 export type EventsFunc<T extends EventsType, E extends EventsName<T>> = EventsMap[T][E]
 
 export type DefineListener<
-  _E extends string,
+  _E extends string | symbol,
   _F extends (...args: any[]) => any
 > = <
   E extends _E,
@@ -61,47 +61,20 @@ export type AllEventsByEE0<EE extends SupportEE<any>[0]> = EE['on'] extends infe
   : never
 : never;
 
-export type InferEvents0<T extends EventsType, EE extends SupportEE<T>[0]> = U2I<
+export type InferEvents0<EE extends SupportEE<any>[0]> = U2I<
   AllEventsByEE0<EE>
 >
 
-export type InferEvents1And2<T extends EventsType, EE extends SupportEE<T>[1 | 2]> = {
+export type InferEvents1And2<EE extends SupportEE<any>[1 | 2]> = {
   [K in keyof EE as K extends `on${infer EventName}` ? Uncapitalize<EventName> : never]: EE[K]
 }
 
-export type InferEvents<
-  T extends EventsType,
-  EE extends EventEmitter<T>
-> = EE extends SupportEE<T>[0]
-  ? InferEvents0<T, EE>
-  : EE extends SupportEE<T>[1 | 2]
-  ? InferEvents1And2<T, EE>
-  : never
-
-//   _?
-type T0 = InferEvents<string, {
-  on:
-    | DefineListener<'foo', (a: string) => void>
-    | DefineListener<'fuo', (a: number) => void>
-}>
-
-//   _?
-type T1 = InferEvents<'foo', {
-  onFoo: undefined
-  onFue: (a0: string) => void
-  onFuu: undefined
-  onFuo: undefined
-  xxxxx: (a0: number) => void
-}>
-
-//   _?
-type T2 = InferEvents<string, {
-  onfoo: undefined
-  onfue: (a0: string) => void
-  onfuu: undefined
-  onfuo: undefined
-  xxxxx: (a0: number) => void
-}>
+export type InferEvents<EE extends EventEmitter<any>> =
+  EE extends SupportEE<any>[0]
+    ? InferEvents0<EE>
+    : EE extends SupportEE<any>[1 | 2]
+    ? InferEvents1And2<EE>
+    : never
 
 export function isWhatEE<
   T extends EventsType,
@@ -110,34 +83,41 @@ export function isWhatEE<
   return true
 }
 
-type EEPromisify<N extends EventsType, EE extends EventEmitter<N>> = {
-  // on: L & {
-  //   [K in L extends Listener<infer Events> ? Events : never]: Parameters<Listener<K>>[1] extends (...args: infer Args) => any
-  //     ? Promise<Args> & {
-  //       [Symbol.iterator]: () => Iterator<Args>
-  //     }
-  //     : never
-  // }
-}
+type EEPromisify<
+  N extends EventsType,
+  InnerEvents extends Events
+> = U2I<
+  keyof InnerEvents extends (
+    infer Event extends (keyof InnerEvents & (string | symbol))
+  )
+  ? Event extends Event
+  ? {
+    on: InnerEvents[Event] extends infer Func extends (...args: any[]) => any
+      ? DefineListener<Event, Func> & {
+        [K in Event]: Parameters<Func> extends infer Args
+          ? Promise<Args> & {
+            [Symbol.iterator]: () => Iterator<Args>
+          }
+          : never
+      }
+      : never
+  }
+  : never
+  : never
+>
 
 export type EventEmitterPromisify<
-  T extends EventsType,
+  T extends EventsType | undefined,
   EE extends EventEmitter<T>
-> = [EventsMap[T]] extends [Events & never]
-  ? 1
-  : 2
-
-type X0 = EventsMap['foo']
-//   ^?
-type X1 = EventsMap[string]
-//   ^?
-
-// &./index.spec.ts:16:12?
-// &./index.spec.ts:30:12?
+> = [T] extends [undefined]
+  ? InferEvents<EE> extends (infer InnerEvents extends Events)
+    ? EEPromisify<T, InnerEvents>
+    : never
+  : EEPromisify<T, EE>
 
 export default function promisify<
-  N extends EventsType,
-  EE extends EventEmitter<N>
+  EE extends EventEmitter<N>,
+  N extends EventsType | undefined = undefined
 >(ee: Narrow<EE>, n?: N): EventEmitterPromisify<N, EE> {
   return {} as any
 }

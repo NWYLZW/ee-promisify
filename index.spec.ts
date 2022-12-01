@@ -27,30 +27,25 @@ describe('Event Emiiter Promisify', function () {
     }
   })
   it('should infer event emitter', async () => {
+    //    v?
     const ee = promisify({
-      /**
-       * @return {void}
-       */
-      onfoo: undefined,
-      /**
-       * @param {string} a0
-       * @return {void}
-       */
-      onfuo: undefined,
-      onfue: undefined as (a0: string) => void,
-      /**
-       * @param {number} a0
-       * @param {boolean} [a1]
-       * @return {void}
-       */
-      onfuu: undefined
+      onfoo: undefined as () => void,
+      onfuo: undefined as (a0: string) => void,
+      onfuu: undefined as (a0: string, a1: number) => void
     })
+
+    // v?
     ee.on('foo', () => {})
+    // v?
+    ee.on('fuo', a0 => {
+      //         ^?
+    })
+    //                          v?
     const [ a01 ] = await ee.on.fuo
     //      ^?
-    const [ a02 ] = await ee.on.fue
-    //      ^?
     for await (const [a0, a1] of ee.on.fuu) {
+      //              ^?
+      //                  ^2?
     }
   })
 })
