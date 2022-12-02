@@ -113,7 +113,7 @@ export type EventEmitterPromisify<
   ? InferEvents<EE> extends (infer InnerEvents extends Events)
     ? EEPromisify<T, InnerEvents>
     : never
-  : EEPromisify<T, EE>
+  : EEPromisify<T, EventsMap[T]>
 
 export default function promisify<
   EE extends EventEmitter<N>,
