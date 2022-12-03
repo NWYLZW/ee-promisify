@@ -93,16 +93,16 @@ export type OutListener<
   Name extends string | symbol,
   Func extends (...args: any[]) => any,
   Opts extends {
-    'with-iterator': boolean
+    'iterator-mode': boolean
   } = {
-    'with-iterator': false
+    'iterator-mode': false
   },
   Args = Parameters<Func>
 > =
   & DefineListener<Name, Func>
   & Record<
     Name,
-    Opts['with-iterator'] extends false
+    Opts['iterator-mode'] extends false
       ? Promise<Args>
       : {
         [Symbol.iterator]: () => Iterator<Promise<Args>>
@@ -125,7 +125,7 @@ type EEPromisify<
   ? Event extends Event
   ? InnerEvents[Event] extends infer Func extends (...args: any[]) => any
   ? {
-    on:   OutListener<Event, Func, { 'with-iterator': true }>
+    on:   OutListener<Event, Func, { 'iterator-mode': true }>
     once: OutListener<Event, Func>
     emit: OutEmitter<Event, Func>
   }
