@@ -89,6 +89,32 @@ export function isWhatEE<
   return true
 }
 
+export type OutListener<
+  Name extends string | symbol,
+  Func extends (...args: any[]) => any,
+  Opts extends {
+    'with-iterator': boolean
+  } = {
+    'with-iterator': false
+  },
+  Args = Parameters<Func>
+> =
+  & DefineListener<Name, Func>
+  & Record<
+    Name,
+    Opts['with-iterator'] extends false
+      ? Promise<Args>
+      : {
+        [Symbol.iterator]: () => Iterator<Promise<Args>>
+      }
+  >
+
+type OutEmitter<
+  Name extends string | symbol,
+  Func extends (...args: any[]) => any
+> =
+  & DefineEmitter<Name, Func>
+
 type EEPromisify<
   N extends EventsType,
   InnerEvents extends Events
@@ -98,16 +124,12 @@ type EEPromisify<
   )
   ? Event extends Event
   ? InnerEvents[Event] extends infer Func extends (...args: any[]) => any
-  ? Parameters<Func> extends infer Args
   ? {
-    on: DefineListener<Event, Func> & {
-      [K in Event]: Promise<Args> & {
-        [Symbol.iterator]: () => Iterator<Args>
-      }
-    }
-    emit: DefineEmitter<Event, Func>
+    on:   OutListener<Event, Func, { 'with-iterator': true }>
+    once: OutListener<Event, Func>
+    emit: OutEmitter<Event, Func>
   }
-  : never : never : never : never
+  : never : never : never
 >
 
 export type EventEmitterPromisify<
