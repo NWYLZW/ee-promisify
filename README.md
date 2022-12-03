@@ -22,11 +22,15 @@ for await (const [data] of ee.message) {
 }
 
 /**
- * emit       -> Promise<T>
- * race       -> Promise<T[]> -> Promise<T>
- * all        -> Promise<T[]>
- * allSettled -> Promise<PromiseResult<T>>
- * line       -> Prmise<T> -> Prmise<T>
+ * emit(event, ...args)            -> Promise<T>
+ * emit(event, ...args).race       -> Promise<T>
+ *   这将同时触发所有的监听器，但只返回第一个完成的 Promise
+ * emit(event, ...args).all        -> Promise<T[]>
+ *   这将同时触发所有的监听器，但只有全部完成才返回所有完成的 Promise，如果有一个失败，就会抛出错误
+ * emit(event, ...args).allSettled -> Promise<PromiseResult<T>>
+ *   这将同时触发所有的监听器，不管成功或失败都会返回所有的 Promise 执行结果
+ * emit(event, ...args).serial     -> Promise<T>
+ *   这将顺序触发所有的监听器，但只返回最后一个完成的 Promise
  *
  * await ee[event]
  * for await (const [arg0, arg1] of ee[event]) {}
