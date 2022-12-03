@@ -35,15 +35,21 @@ export type DefineEmitter<
   F extends _F
 >(event: E, ...args: Parameters<F>) => Awaitable<void> | Awaitable<ReturnType<F>>
 
-export type Listener<T extends EventsType> = DefineListener<EventsName<T>, EventsFunc<T, EventsName<T>>>
+/**
+ * define input listener
+ */
+export type InListener<T extends EventsType> = DefineListener<EventsName<T>, EventsFunc<T, EventsName<T>>>
 
-export type Emitter<T extends EventsType> = DefineEmitter<EventsName<T>, EventsFunc<T, EventsName<T>>>
+/**
+ * define input emitter
+ */
+export type InEmitter<T extends EventsType> = DefineEmitter<EventsName<T>, EventsFunc<T, EventsName<T>>>
 
 export interface SupportEE<T extends EventsType> {
   0: {
-    on: Listener<T>
-    off?: Listener<T>
-    emit?: Emitter<T>
+    on: InListener<T>
+    off?: InListener<T>
+    emit?: InEmitter<T>
   }
   1: {
     [K in EventsName<T> as `on${Capitalize<EventsName<T>>}`]?: EventsFunc<T, K>
