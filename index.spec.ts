@@ -19,7 +19,7 @@ describe('Event Emiiter Promisify', function () {
       onbor: undefined
     }, 'foo')
     ee.on('bar', () => {})
-    const [ a0 ] = await ee.on.ber
+    const [ a0 ] = await ee.once.ber
     //      ^?
     for await (const [a0, a1] of ee.on.bor) {
       //              ^?
@@ -41,7 +41,7 @@ describe('Event Emiiter Promisify', function () {
       //         ^?
     })
     //                          v?
-    const [ a01 ] = await ee.on.fuo
+    const [ a01 ] = await ee.once.fuo
     //      ^?
     for await (const [a0, a1] of ee.on.fuu) {
       //              ^?
