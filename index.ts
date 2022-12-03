@@ -28,7 +28,7 @@ export type DefineListener<
 >(event: E, callback: F) => Awaitable<void> | Awaitable<ReturnType<F>>
 
 export type DefineEmitter<
-  _E extends string,
+  _E extends string | symbol,
   _F extends (...args: any[]) => any
 > = <
   E extends _E,
@@ -91,19 +91,17 @@ type EEPromisify<
     infer Event extends (keyof InnerEvents & (string | symbol))
   )
   ? Event extends Event
+  ? InnerEvents[Event] extends infer Func extends (...args: any[]) => any
+  ? Parameters<Func> extends infer Args
   ? {
-    on: InnerEvents[Event] extends infer Func extends (...args: any[]) => any
-      ? DefineListener<Event, Func> & {
-        [K in Event]: Parameters<Func> extends infer Args
-          ? Promise<Args> & {
-            [Symbol.iterator]: () => Iterator<Args>
-          }
-          : never
+    on: DefineListener<Event, Func> & {
+      [K in Event]: Promise<Args> & {
+        [Symbol.iterator]: () => Iterator<Args>
       }
-      : never
+    }
+    emit: DefineEmitter<Event, Func>
   }
-  : never
-  : never
+  : never : never : never : never
 >
 
 export type EventEmitterPromisify<
