@@ -111,9 +111,13 @@ export type OutListener<
 
 type OutEmitter<
   Name extends string | symbol,
-  Func extends (...args: any[]) => any
+  Func extends (...args: any[]) => any,
+  Args extends any[] = Parameters<Func>,
+  RetT = ReturnType<Func>
 > =
-  & DefineEmitter<Name, Func>
+  & DefineEmitter<Name, (...args: Args) => RetT & {
+    all: Promise<RetT[]>
+  }>
 
 type EEPromisify<
   N extends EventsType,
