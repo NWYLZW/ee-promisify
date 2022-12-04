@@ -6,12 +6,13 @@
   "license": "MIT",
   "main": "index.js",
   "files": [
-    "index.js",
-    "index.d.ts",
-    "type.d.ts",
+    "dist/**/*",
     "README.md"
   ],
-  "scripts": {},
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "mocha test/**/*.spec.ts"
+  },
   "keywords": [
     "promise",
     "promisify",

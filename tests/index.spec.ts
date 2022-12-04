@@ -1,8 +1,8 @@
 import { expect } from 'chai'
-import promisify from './index'
+import promisify from '../src'
 import { Equal, Expect } from './type.test'
 
-declare module './index' {
+declare module '../src' {
   export interface EventsMap {
     foo: {
       bar(): void
