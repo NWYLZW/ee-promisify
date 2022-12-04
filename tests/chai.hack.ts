@@ -19,7 +19,18 @@ interface Expecter<R extends boolean> {
 }
 
 interface TypeAssert {
+  /**
+   * the function will check type is extend
+   */
   equal<
+    A,
+    E,
+    R extends boolean = A extends E ? true : false
+  >(actual: Narrow<A>, expected: Narrow<E>, message?: string): Expecter<R>
+  /**
+   * the function will check type is equal {@see EQ}
+   */
+  strictEqual<
     A,
     E,
     R extends boolean = EQ<A, E>
