@@ -1,8 +1,8 @@
-import { expect } from 'chai'
+import { assert } from 'chai'
 import promisify from '../src'
 import { Equal, Expect } from './type.test'
 
-declare module '../src' {
+declare module 'ee-promisify' {
   export interface EventsMap {
     foo: {
       bar(): void
@@ -20,7 +20,8 @@ describe('Event Emiiter Promisify', function () {
       onbor: undefined
     }, 'foo')
     const args = await ee.once.bar
-    type Case0 = Expect<Equal<typeof args, []>>
+    assert.forType
+      .equal(args, []).right
     const [ a0 ] = await ee.once.ber
     type Case1 = Expect<Equal<typeof a0, string>>
     for await (const [a0, a1] of ee.on.bor) {
