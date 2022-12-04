@@ -6,8 +6,8 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "paths": {
-      "ee-promisify": ["src/index.ts"],
-      "ee-promisify/*": ["src/*"]
+      "ee-promisify": ["./src/index.ts"],
+      "ee-promisify/*": ["./src/*"]
     }
   },
   "exclude": [
