@@ -21,7 +21,7 @@ describe('Event Emiiter Promisify', function () {
     }, 'foo')
     const args = await ee.once.bar
     assert.forType
-      .equal(args, []).right
+      .equal(args, []).expectIs.right
     const [ a0 ] = await ee.once.ber
     type Case1 = Expect<Equal<typeof a0, string>>
     for await (const [a0, a1] of ee.on.bor) {
