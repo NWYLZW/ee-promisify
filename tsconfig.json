@@ -4,8 +4,11 @@
     "target": "ES2016",
     "sourceMap": true,
     "esModuleInterop": true,
-    "outDir": "dist",
-    "rootDir": "src"
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "ee-promisify": ["src/index.ts"],
+      "ee-promisify/*": ["src/*"]
+    }
   },
   "exclude": [
     "node_modules"
