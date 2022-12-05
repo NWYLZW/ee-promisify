@@ -1,5 +1,5 @@
-import { Narrow, ExtendCheck } from 'ee-promisify/type'
-import { Equal as EQ } from './type.test'
+import { Narrow, ExtendCheck } from '../src/type'
+import { Equal as EQ } from '../tests/type.test'
 
 type TypeExpect<R extends boolean> =
   R extends true
