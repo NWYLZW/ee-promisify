@@ -13,7 +13,6 @@ type TypeExpect<R extends boolean> =
     }
 
 interface Expecter<R extends boolean> {
-
   expect: TypeExpect<R>
   expectIs: TypeExpect<R>
 }
