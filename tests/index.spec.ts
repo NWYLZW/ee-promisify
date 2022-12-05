@@ -38,14 +38,27 @@ describe('Event Emiiter Promisify', function () {
       onfuo: undefined as (a0: string) => void,
       onfuu: undefined as (a0: string, a1: number) => void
     })
+    setTimeout(() => {
+      ee.emit('foo')
+      ee.emit('fuo', 'a0')
+      ;([
+        ['a0', 1],
+        ['a1', 2],
+        ['break', 0]
+      ] as const).forEach(([a0, a1]) => ee.emit('fuu', a0, a1))
+    }, 10)
     const args = await ee.once.foo
     assert.forType.strictEqual(args, []).expectIs.right
-    const [ a01 ] = await ee.once.fuo
-    assert.forType.equal(a01, String).expectIs.right
+    const [ a0 ] = await ee.once.fuo
+    assert.forType.equal(a0, String).expectIs.right
+    assert.equal(a0, 'a0')
     for await (const [a0, a1] of ee.on.fuu) {
       assert.forType
         .equal([a0, a1], [String, Number])
         .expectIs.right
+      if (a0 === 'break') {
+        break
+      }
     }
   })
 })
