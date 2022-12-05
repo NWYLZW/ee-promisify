@@ -82,13 +82,6 @@ export type InferEvents<EE extends EventEmitter<any>> =
     ? InferEvents1And2<EE>
     : never
 
-export function isWhatEE<
-  T extends EventsType,
-  E extends keyof SupportEE<T>
->(ee: EventEmitter<T>, expect: E): ee is SupportEE<T>[E] {
-  return true
-}
-
 export type OutListener<
   Name extends string | symbol,
   Func extends (...args: any[]) => any,
@@ -145,9 +138,90 @@ export type EventEmitterPromisify<
     : never
   : EEPromisify<T, EventsMap[T]>
 
+export function isWhatEE<
+  E extends 0 | 1 | 2,
+  N extends EventsType | undefined = undefined
+>(ee: any, expect: E): ee is SupportEE<N>[E] {
+  if (!ee || !(ee instanceof Object)) {
+    return false
+  }
+
+  switch (expect) {
+    case 0:
+      return typeof ee.on === 'function'
+        && typeof ee.emit === 'function'
+        && typeof ee.off === 'function'
+    case 1:
+      return Object.keys(ee).every(key => {
+        return key.startsWith('on')
+          && typeof ee[key] === 'function'
+          && key.length > 2
+          && key[2] === key[2].toUpperCase()
+      })
+    case 2:
+      return Object.keys(ee).every(key => {
+        return key.startsWith('on')
+          && typeof ee[key] === 'function'
+          && key.length > 2
+          && key[2] === key[2].toLowerCase()
+      })
+  }
+}
+
+const eventsMapSymbol = Symbol('eventsMap')
+
+export function createEEP() {
+  const eventsMap = new Map<string, Function[]>()
+  return {
+    on(event: string, callback: Function) {
+      if (!eventsMap.has(event)) {
+        eventsMap.set(event, [])
+      }
+      eventsMap.get(event)!.push(callback)
+    },
+    off(event: string, callback: Function) {
+      if (!eventsMap.has(event)) {
+        return
+      }
+      const callbacks = eventsMap.get(event)!
+      const index = callbacks.indexOf(callback)
+      if (index >= 0) {
+        callbacks.splice(index, 1)
+      }
+    },
+    once(event: string, callback: Function) {
+      const onceCallback = (...args: any[]) => {
+        callback(...args)
+        this.off(event, onceCallback)
+      }
+      this.on(event, onceCallback)
+    },
+    emit(event: string, ...args: any[]) {
+      if (!eventsMap.has(event)) {
+        return
+      }
+      const callbacks = eventsMap.get(event)!
+      const ret = callbacks.map(callback => callback(...args))
+      const all = Promise.all(ret)
+      return Object.assign(all, { all })
+    }
+  }
+}
+
 export default function promisify<
   EE extends EventEmitter<N>,
   N extends EventsType | undefined = undefined
 >(ee: Narrow<EE>, n?: N): EventEmitterPromisify<N, EE> {
+  const eep = createEEP()
+  switch (true) {
+    case isWhatEE(ee, 0):
+      break
+    case isWhatEE(ee, 1):
+      break
+    case isWhatEE(ee, 2):
+      break
+    default:
+      throw new TypeError('expect EventEmitter')
+  }
   return {} as any
 }
