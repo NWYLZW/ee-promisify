@@ -1,4 +1,4 @@
-import { Narrow } from 'ee-promisify/type'
+import { Narrow, ExtendCheck } from 'ee-promisify/type'
 import { Equal as EQ } from './type.test'
 
 type TypeExpect<R extends boolean> =
@@ -17,50 +17,6 @@ interface Expecter<R extends boolean> {
   expect: TypeExpect<R>
   expectIs: TypeExpect<R>
 }
-
-type PrimitiveTuples = [
-  [StringConstructor, string],
-  [NumberConstructor, number],
-  [BooleanConstructor, boolean],
-  [BigIntConstructor, bigint],
-  [SymbolConstructor, symbol],
-  [undefined, undefined],
-  [null, null],
-  [ObjectConstructor, object],
-  [FunctionConstructor, Function],
-  [ArrayConstructor, any[] | []],
-]
-
-type PrimitiveConstructorMap<T> =
-  PrimitiveTuples[number] extends infer R
-    ? R extends [infer K, infer V]
-      ? K extends T
-        ? V
-    : never
-    : never
-    : never
-
-type IsPrimitive<T> = T extends PrimitiveTuples[number][0] ? true : false
-
-type ResolveConstructors<T> =
-  T extends [infer K, ...infer Rest]
-    ? [ResolveConstructor<K>, ...ResolveConstructors<Rest>]
-    : T
-
-type ResolveConstructorDict<T> = {
-  [K in keyof T]: ResolveConstructor<T[K]>
-}
-
-type ResolveConstructor<T> =
-  IsPrimitive<T> extends true
-  ? PrimitiveConstructorMap<T>
-  : T extends any[]
-  ? ResolveConstructors<T>
-  : T extends Record<string | symbol, any>
-  ? ResolveConstructorDict<T>
-  : T
-
-type ExtendCheck<A, B> = A extends ResolveConstructor<B> ? true : false
 
 interface TypeAssert {
   /**
