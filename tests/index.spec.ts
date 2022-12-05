@@ -20,14 +20,16 @@ describe('Event Emiiter Promisify', function () {
       onbor: undefined
     }, 'foo')
     const args = await ee.once.bar
-    assert.forType
-      .strictEqual(args, []).expectIs.right
+    assert.forType.strictEqual(args, []).expectIs.right
     const [ a0 ] = await ee.once.ber
-    type Case1 = Expect<Equal<typeof a0, string>>
+    assert.forType.equal(a0, String).expectIs.right
+
     for await (const [a0, a1] of ee.on.bor) {
       type Case0 = Expect<Equal<
         [typeof a0, typeof a1], [number, boolean]
       >>
+      assert.forType.equal(a0, Number).expectIs.right
+      assert.forType.equal(a1, Boolean).expectIs.right
     }
   })
   it('should infer event emitter', async () => {
