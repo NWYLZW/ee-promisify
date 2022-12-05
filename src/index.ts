@@ -138,10 +138,7 @@ export type EventEmitterPromisify<
     : never
   : EEPromisify<T, EventsMap[T]>
 
-export function isWhatEE<
-  E extends 0 | 1 | 2,
-  N extends EventsType | undefined = undefined
->(ee: any, expect: E): ee is SupportEE<N>[E] {
+export function isWhatEE<E extends 0 | 1 | 2>(ee: any, expect: E): ee is SupportEE<any>[E] {
   if (!ee || !(ee instanceof Object)) {
     return false
   }
@@ -213,15 +210,11 @@ export default function promisify<
   N extends EventsType | undefined = undefined
 >(ee: Narrow<EE>, n?: N): EventEmitterPromisify<N, EE> {
   const eep = createEEP()
-  switch (true) {
-    case isWhatEE(ee, 0):
-      break
-    case isWhatEE(ee, 1):
-      break
-    case isWhatEE(ee, 2):
-      break
-    default:
-      throw new TypeError('expect EventEmitter')
+  if (isWhatEE(ee, 0)) {
+  } else if (isWhatEE(ee, 1)) {
+  } else if (isWhatEE(ee, 2)) {
+  } else {
+    throw new TypeError('unsupport EventEmitter')
   }
-  return {} as any
+  return eep as any
 }
