@@ -60,11 +60,7 @@ type ResolveConstructor<T> =
   ? ResolveConstructorDict<T>
   : T
 
-type ExtendCheck<A, B> = (
-  IsPrimitive<B> extends true ? PrimitiveConstructorMap<B> : B
-) extends infer RealB
-  ? RealB
-  : never
+type ExtendCheck<A, B> = A extends ResolveConstructor<B> ? true : false
 
 interface TypeAssert {
   /**
@@ -73,9 +69,7 @@ interface TypeAssert {
   equal<
     A,
     E,
-    R extends boolean = A extends (
-      IsPrimitive<E> extends true ? PrimitiveConstructorMap<E> : E
-    ) ? true : false
+    R extends boolean = ExtendCheck<A, E>
   >(actual: Narrow<A>, expected: Narrow<E>, message?: string): Expecter<R>
   /**
    * the function will check type is equal {@see EQ}

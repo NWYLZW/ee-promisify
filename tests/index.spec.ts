@@ -28,8 +28,9 @@ describe('Event Emiiter Promisify', function () {
       type Case0 = Expect<Equal<
         [typeof a0, typeof a1], [number, boolean]
       >>
-      assert.forType.equal(a0, Number).expectIs.right
-      assert.forType.equal(a1, Boolean).expectIs.right
+      assert.forType
+        .equal([a0, a1], [Number, Boolean])
+        .expectIs.right
     }
   })
   it('should infer event emitter', async () => {
