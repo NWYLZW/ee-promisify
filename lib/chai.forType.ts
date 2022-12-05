@@ -1,5 +1,7 @@
 import { Narrow, ExtendCheck } from '../src/type'
 import { Equal as EQ } from '../tests/type.test'
+import * as Chai from 'chai'
+import ChaiPlugin = Chai.ChaiPlugin
 
 type TypeExpect<R extends boolean> =
   R extends true
@@ -43,3 +45,28 @@ declare global {
     }
   }
 }
+
+const expecter = {
+  true: undefined,
+  right: undefined
+}
+
+const typeExpect = {
+  expect: expecter,
+  expectIs: expecter
+}
+
+const plugin: ChaiPlugin = (chai, utils) => {
+  chai.Assertion.addProperty('forType', function () {
+    return {
+      equal: (actual, expected, message) => {
+        return typeExpect
+      },
+      strictEqual: (actual, expected, message) => {
+        return typeExpect
+      }
+    }
+  })
+}
+
+export default plugin

@@ -1,5 +1,8 @@
-import { assert } from 'chai'
-import promisify from '../src'
+import { assert, use } from 'chai'
+import promisify from 'ee-promisify'
+import chaiForType from 'ee-promisify/lib/chai.forType'
+
+use(chaiForType)
 
 declare module 'ee-promisify' {
   export interface EventsMap {
