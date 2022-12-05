@@ -25,9 +25,6 @@ describe('Event Emiiter Promisify', function () {
     assert.forType.equal(a0, String).expectIs.right
 
     for await (const [a0, a1] of ee.on.bor) {
-      type Case0 = Expect<Equal<
-        [typeof a0, typeof a1], [number, boolean]
-      >>
       assert.forType
         .equal([a0, a1], [Number, Boolean])
         .expectIs.right
@@ -40,13 +37,13 @@ describe('Event Emiiter Promisify', function () {
       onfuu: undefined as (a0: string, a1: number) => void
     })
     const args = await ee.once.foo
-    type Case0 = Expect<Equal<typeof args, []>>
+    assert.forType.strictEqual(args, []).expectIs.right
     const [ a01 ] = await ee.once.fuo
-    type Case1 = Expect<Equal<typeof a01, string>>
+    assert.forType.equal(a01, String).expectIs.right
     for await (const [a0, a1] of ee.on.fuu) {
-      type Case0 = Expect<Equal<
-        [typeof a0, typeof a1], [string, number]
-      >>
+      assert.forType
+        .equal([a0, a1], [String, Number])
+        .expectIs.right
     }
   })
 })
