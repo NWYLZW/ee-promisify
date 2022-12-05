@@ -1,6 +1,5 @@
 import { assert } from 'chai'
 import promisify from '../src'
-import { Equal, Expect } from './type.test'
 
 declare module 'ee-promisify' {
   export interface EventsMap {
