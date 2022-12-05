@@ -45,7 +45,7 @@ type IsPrimitive<T> = T extends PrimitiveTuples[number][0] ? true : false
 type ResolveConstructors<T> =
   T extends [infer K, ...infer Rest]
     ? [ResolveConstructor<K>, ...ResolveConstructors<Rest>]
-    : never
+    : T
 
 type ResolveConstructorDict<T> = {
   [K in keyof T]: ResolveConstructor<T[K]>
