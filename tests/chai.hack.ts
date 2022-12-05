@@ -42,6 +42,30 @@ type PrimitiveConstructorMap<T> =
 
 type IsPrimitive<T> = T extends PrimitiveTuples[number][0] ? true : false
 
+type ResolveConstructors<T> =
+  T extends [infer K, ...infer Rest]
+    ? [ResolveConstructor<K>, ...ResolveConstructors<Rest>]
+    : never
+
+type ResolveConstructorDict<T> = {
+  [K in keyof T]: ResolveConstructor<T[K]>
+}
+
+type ResolveConstructor<T> =
+  IsPrimitive<T> extends true
+  ? PrimitiveConstructorMap<T>
+  : T extends any[]
+  ? ResolveConstructors<T>
+  : T extends object
+  ? ResolveConstructorDict<T>
+  : T
+
+type ExtendCheck<A, B> = (
+  IsPrimitive<B> extends true ? PrimitiveConstructorMap<B> : B
+) extends infer RealB
+  ? RealB
+  : never
+
 interface TypeAssert {
   /**
    * the function will check type is extend
