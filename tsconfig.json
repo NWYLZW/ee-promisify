@@ -10,6 +10,7 @@
       "ee-promisify/*": ["./src/*"],
       "ee-promisify/lib/*": ["./lib/*"]
     },
+    "types": ["node", "mocha", "chai"],
     "lib": [
       "ES2015",
       "es2020.bigint",
