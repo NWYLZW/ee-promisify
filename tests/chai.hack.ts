@@ -56,7 +56,7 @@ type ResolveConstructor<T> =
   ? PrimitiveConstructorMap<T>
   : T extends any[]
   ? ResolveConstructors<T>
-  : T extends object
+  : T extends Record<string | symbol, any>
   ? ResolveConstructorDict<T>
   : T
 
