@@ -51,21 +51,17 @@ const expecter = {
   right: undefined
 }
 
-const typeExpect = {
+const typeExpect: Expecter<boolean> = {
   expect: expecter,
   expectIs: expecter
 }
 
 const plugin: ChaiPlugin = (chai, utils) => {
-  chai.Assertion.addProperty('forType', function () {
+  utils.addProperty(chai.assert, 'forType', function () {
     return {
-      equal: (actual, expected, message) => {
-        return typeExpect
-      },
-      strictEqual: (actual, expected, message) => {
-        return typeExpect
-      }
-    }
+      equal: (actual, expected, message) => typeExpect,
+      strictEqual: (actual, expected, message) => typeExpect
+    } as TypeAssert
   })
 }
 
