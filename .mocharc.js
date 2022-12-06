@@ -1,4 +1,7 @@
 module.exports = {
   extension: ['ts'],
-  require: ['ts-node/register', 'tsconfig-paths/register'],
+  require: [
+    'ts-node/register',
+    'tsconfig-paths/register'
+  ],
 }
