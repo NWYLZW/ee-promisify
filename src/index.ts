@@ -175,14 +175,21 @@ export default function promisify<
   if (isWhatEE(ee, 0)) {
   } else if (isWhatEE(ee, 1)) {
     const allEvents = Object.keys(ee).filter(key => key.startsWith('on'))
+    function resolveEvent(event: string | symbol) {
+      if (typeof event === 'string') {
+        return event[2].toLowerCase() + event.slice(3)
+      } else if (typeof event === 'symbol') {
+        throw new Error('not support symbol event')
+      }
+    }
     hooks.on = event => {
-      const onEventProp = `on${event[0].toUpperCase()}${event.slice(1)}`
+      const onEventProp = resolveEvent(event)
       if (allEvents.includes(onEventProp)) {
         ee[onEventProp] = eep.emit.bind(eep, event)
       }
     }
     hooks.off = event => {
-      const onEventProp = `on${event[0].toUpperCase()}${event.slice(1)}`
+      const onEventProp = resolveEvent(event)
       if (allEvents.includes(onEventProp)) {
         ee[onEventProp] = () => {}
       }

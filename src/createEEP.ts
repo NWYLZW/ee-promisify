@@ -3,23 +3,23 @@ export const eventsMapSymbol = Symbol('eventsMap')
 export const setupHooksSymbol = Symbol('setupHooks')
 
 export interface EEPHooks {
-  on?: (event: string) => any
-  off?: (event: string) => any
+  on?: (event: string | symbol) => any
+  off?: (event: string | symbol) => any
 }
 
 export function createEEP(hook?: EEPHooks) {
-  const eventsMap = new Map<string, Function[]>()
-  return {
+  const eventsMap = new Map<string | symbol, Function[]>()
+  const eep = {
     [eventsMapSymbol]: eventsMap,
     [setupHooksSymbol]: hook,
-    on(event: string, callback: Function) {
+    on(event: string | symbol, callback: Function) {
       if (!eventsMap.has(event)) {
         eventsMap.set(event, [])
         hook?.on?.(event)
       }
       eventsMap.get(event)!.push(callback)
     },
-    off(event: string, callback: Function) {
+    off(event: string | symbol, callback: Function) {
       if (!eventsMap.has(event)) {
         return
       }
@@ -33,7 +33,7 @@ export function createEEP(hook?: EEPHooks) {
         }
       }
     },
-    once(event: string, callback: Function) {
+    once(event: string | symbol, callback: Function) {
       const onceCallback = (...args: any[]) => {
         callback(...args)
         this.off(event, onceCallback)
@@ -49,5 +49,19 @@ export function createEEP(hook?: EEPHooks) {
       const all = Promise.all(ret)
       return Object.assign(all, { all })
     }
+  }
+  return {
+    ...eep,
+    once: new Proxy(eep.once, {
+      get: (_, p) => {
+        return new Promise((resolve, reject) => {
+          try {
+            eep.once(p, (...args) => resolve(args ?? []))
+          } catch (e) {
+            reject(e)
+          }
+        })
+      }
+    })
   }
 }
