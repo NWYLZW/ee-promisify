@@ -167,12 +167,22 @@ export function isWhatEE<E extends 0 | 1 | 2>(ee: any, expect: E): ee is Support
 
 const eventsMapSymbol = Symbol('eventsMap')
 
-export function createEEP() {
+const setupHooksSymbol = Symbol('setupHooks')
+
+interface EEPHooks {
+  on?: (event: string) => any
+  off?: (event: string) => any
+}
+
+export function createEEP(hook?: EEPHooks) {
   const eventsMap = new Map<string, Function[]>()
   return {
+    [eventsMapSymbol]: eventsMap,
+    [setupHooksSymbol]: hook,
     on(event: string, callback: Function) {
       if (!eventsMap.has(event)) {
         eventsMap.set(event, [])
+        hook?.on?.(event)
       }
       eventsMap.get(event)!.push(callback)
     },
@@ -184,6 +194,10 @@ export function createEEP() {
       const index = callbacks.indexOf(callback)
       if (index >= 0) {
         callbacks.splice(index, 1)
+        if (!callbacks.length) {
+          eventsMap.delete(event)
+          hook?.off?.(event)
+        }
       }
     },
     once(event: string, callback: Function) {
@@ -209,12 +223,27 @@ export default function promisify<
   EE extends EventEmitter<N>,
   N extends EventsType | undefined = undefined
 >(ee: Narrow<EE>, n?: N): EventEmitterPromisify<N, EE> {
+  const hooks: EEPHooks = {};
   const eep = createEEP()
   if (isWhatEE(ee, 0)) {
   } else if (isWhatEE(ee, 1)) {
+    const allEvents = Object.keys(ee).filter(key => key.startsWith('on'))
+    hooks.on = event => {
+      const onEventProp = `on${event[0].toUpperCase()}${event.slice(1)}`
+      if (allEvents.includes(onEventProp)) {
+        ee[onEventProp] = eep.emit.bind(eep, event)
+      }
+    }
+    hooks.off = event => {
+      const onEventProp = `on${event[0].toUpperCase()}${event.slice(1)}`
+      if (allEvents.includes(onEventProp)) {
+        ee[onEventProp] = () => {}
+      }
+    }
   } else if (isWhatEE(ee, 2)) {
   } else {
     throw new TypeError('unsupport EventEmitter')
   }
+  eep[setupHooksSymbol] = hooks
   return eep as any
 }
