@@ -85,15 +85,21 @@ export function createEEP(hook?: EEPHooks) {
     on: new Proxy(eep.on, {
       get: (_, p) => ({
         async *[Symbol.asyncIterator]() {
+          let lock = true
           let future = new Future()
-          eep.on(p, (...args) => {
+          eep.on(p, function callback(...args) {
             try {
-              future.res?.(args ?? [])
+              future.res?.((args ?? []).concat([
+                () => {
+                  eep.off(p, callback)
+                  lock = false
+                }
+              ]))
             } catch (e) {
               future.rej?.(e)
             }
           })
-          while (true) {
+          while (lock) {
             yield new Promise((resolve, reject) => {
               future = future.restore(resolve, reject)
             })

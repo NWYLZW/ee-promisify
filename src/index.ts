@@ -93,7 +93,8 @@ export type OutListener<
   } = {
     'iterator-mode': false
   },
-  Args = Parameters<Func>
+  Args extends any[] = Parameters<Func>,
+  ArgsWithBreaker = [...Args, () => void]
 > =
   & DefineListener<Name, Func>
   & Record<
@@ -101,7 +102,8 @@ export type OutListener<
     Opts['iterator-mode'] extends false
       ? Promise<Args>
       : {
-        [Symbol.iterator]: () => Iterator<Promise<Args>>
+        [Symbol.iterator]: () => Iterator<Promise<ArgsWithBreaker>>
+        [Symbol.asyncIterator]: () => AsyncIterator<ArgsWithBreaker>
       }
   >
 

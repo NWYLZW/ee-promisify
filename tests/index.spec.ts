@@ -1,6 +1,7 @@
 import { assert, use } from 'chai'
 import promisify from 'ee-promisify'
 import chaiForType from 'ee-promisify/lib/chai.forType'
+import { eventsMapSymbol } from 'ee-promisify/createEEP'
 
 use(chaiForType)
 
@@ -83,15 +84,17 @@ describe('Event Emiiter Promisify', function () {
     assert.forType.equal(a0, String).expectIs.right
     assert.equal(a0, 'a0')
     let c = 0
-    for await (const [a0, a1] of ee.on.fuu) {
+    for await (const [a0, a1, breaker] of ee.on.fuu) {
+      assert.equal(ee[eventsMapSymbol].has('fuu'), true, 'should has fuu')
       c += 1
       assert.forType
         .equal([a0, a1], [String, Number])
         .expectIs.right
       if (a0 === 'break') {
-        break
+        breaker()
       }
     }
+    assert.equal(ee[eventsMapSymbol].has('fuu'), false, 'should not has fuu')
     assert.equal(c, 3)
   })
 })
