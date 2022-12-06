@@ -151,14 +151,12 @@ export function isWhatEE<E extends 0 | 1 | 2>(ee: any, expect: E): ee is Support
     case 1:
       return Object.keys(ee).every(key => {
         return key.startsWith('on')
-          && typeof ee[key] === 'function'
           && key.length > 2
           && key[2] === key[2].toUpperCase()
       })
     case 2:
       return Object.keys(ee).every(key => {
         return key.startsWith('on')
-          && typeof ee[key] === 'function'
           && key.length > 2
           && key[2] === key[2].toLowerCase()
       })
