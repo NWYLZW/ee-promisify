@@ -1,3 +1,22 @@
+class Future<T> extends Promise<T> {
+  constructor(
+    public res?: (value: T | PromiseLike<T>) => void,
+    public rej?: (reason: any) => void
+  ) {
+    super((resolve, reject) => {
+      this.res = resolve
+      this.rej = reject
+    })
+  }
+  [Symbol.species] = Future
+  restore(
+    res = this.res,
+    rej = this.rej
+  ) {
+    return new this[Symbol.species](res, rej)
+  }
+}
+
 export const eventsMapSymbol = Symbol('eventsMap')
 
 export const setupHooksSymbol = Symbol('setupHooks')
@@ -62,6 +81,25 @@ export function createEEP(hook?: EEPHooks) {
           }
         })
       }
+    }),
+    on: new Proxy(eep.on, {
+      get: (_, p) => ({
+        async *[Symbol.asyncIterator]() {
+          let future = new Future()
+          eep.on(p, (...args) => {
+            try {
+              future.res?.(args ?? [])
+            } catch (e) {
+              future.rej?.(e)
+            }
+          })
+          while (true) {
+            yield new Promise((resolve, reject) => {
+              future = future.restore(resolve, reject)
+            })
+          }
+        }
+      })
     })
   }
 }
