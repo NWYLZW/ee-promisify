@@ -1,6 +1,6 @@
 {
   "name": "ee-promisify",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Promisify your EventEmitter!",
   "author": "YiJie <yijie4188@gmail.com>",
   "license": "MIT",
@@ -21,6 +21,12 @@
     },
     "./type": {
       "types": "./dist/type.d.ts"
+    }
+  },
+  "typesVersions": {
+    "*": {
+      "createEEP": ["dist/createEEP.d.ts"],
+      "type": ["dist/type.d.ts"]
     }
   },
   "files": [
