@@ -1,10 +1,28 @@
 {
   "name": "ee-promisify",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "Promisify your EventEmitter!",
   "author": "YiJie <yijie4188@gmail.com>",
   "license": "MIT",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./createEEP": {
+      "import": "./dist/createEEP.js",
+      "require": "./dist/createEEP.js",
+      "default": "./dist/createEEP.js",
+      "types": "./dist/createEEP.d.ts"
+    },
+    "./type": {
+      "types": "./dist/type.d.ts"
+    }
+  },
   "files": [
     "dist/**/*",
     "README.md"
